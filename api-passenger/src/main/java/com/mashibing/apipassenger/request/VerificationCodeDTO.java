@@ -1,5 +1,7 @@
 package com.mashibing.apipassenger.request;
 
+import lombok.Data;
+
 /**
  * @ClassName VerificationCodeDTO
  * @Description 请描述类的业务用途
@@ -7,15 +9,10 @@ package com.mashibing.apipassenger.request;
  * @Date 2022/7/20
  * @Version 1.0
  **/
+@Data
 public class VerificationCodeDTO {
 
     private String passengerPhone;
 
-    public String getPassengerPhone() {
-        return passengerPhone;
-    }
-
-    public void setPassengerPhone(String passengerPhone) {
-        this.passengerPhone = passengerPhone;
-    }
+    private String code;
 }
