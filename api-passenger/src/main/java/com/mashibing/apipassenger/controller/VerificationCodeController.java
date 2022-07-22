@@ -29,7 +29,7 @@ public class VerificationCodeController {
      * @return
      */
     @GetMapping("/verification-code")
-    public String verificationCode(@RequestBody VerificationCodeDTO verificationCodeDTO) {
+    public ResponseResult verificationCode(@RequestBody VerificationCodeDTO verificationCodeDTO) {
         String passengerPhone = verificationCodeDTO.getPassengerPhone();
         System.out.println("接收到手机号参数:" +passengerPhone);
 

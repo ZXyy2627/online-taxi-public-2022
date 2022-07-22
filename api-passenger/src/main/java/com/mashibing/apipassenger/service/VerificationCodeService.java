@@ -2,10 +2,12 @@ package com.mashibing.apipassenger.service;
 
 
 import com.mashibing.apipassenger.remote.ServiceVerificationcodeClient;
+import com.mashibing.internalcommon.constant.CommonStatusEnum;
 import com.mashibing.internalcommon.dto.ResponseResult;
 import com.mashibing.internalcommon.response.NumberCodeResponse;
 import com.mashibing.internalcommon.response.TokenResponse;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ public class VerificationCodeService {
      * @param passengerPhone
      * @return
      */
-    public String generatorCode(String passengerPhone) {
+    public ResponseResult generatorCode(String passengerPhone) {
         //调用验证码服务获取验证码
         System.out.println("调用验证码服务，获取验证码");
 
@@ -46,17 +48,12 @@ public class VerificationCodeService {
         System.out.println("remote number code :" + numberCode);
 
         //存入redis
-
-        System.out.println("存入redis");
-
-        String key = verificationCodePrefix + passengerPhone;
+        String key = generatorKeyByPhone(passengerPhone);
         stringRedisTemplate.opsForValue().set(key, numberCode+"", 2, TimeUnit.MINUTES);
 
-        //返回值
-        JSONObject result = new JSONObject();
-        result.put("code", 1);
-        result.put("message", "success");
-        return result.toString();
+        //通过短信服务商，将对应的验证码发送到手机上，阿里短信服务，腾讯短信通，华信
+
+        return ResponseResult.success();
     }
 
     /**
@@ -69,8 +66,20 @@ public class VerificationCodeService {
         //根据手机号，去redis中取验证码
         System.out.println("根据手机号，去redis中取验证码");
 
+        //生成key
+        String key = generatorKeyByPhone(passengerPhone);
+        //根据key获取验证码
+        String codeRedis = stringRedisTemplate.opsForValue().get(key);
+        System.out.println("获取到redis中的验证码是:"+codeRedis);
+
         //校验验证码
         System.out.println("校验验证码");
+        if (StringUtils.isBlank(codeRedis)) {
+            return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getMessage());
+        }
+        if (!verificationCode.trim().equals(codeRedis.trim())) {
+            return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(), CommonStatusEnum.VERIFICATION_CODE_ERROR.getMessage());
+        }
         //如果用户不存在，做注册操作，就是插入数据
         System.out.println("注册用户");
 
@@ -81,5 +90,9 @@ public class VerificationCodeService {
         tokenResponse.setToken("token value");
 
         return ResponseResult.success(tokenResponse);
+    }
+
+    private String generatorKeyByPhone(String passengerPhone) {
+        return verificationCodePrefix + passengerPhone;
     }
 }
