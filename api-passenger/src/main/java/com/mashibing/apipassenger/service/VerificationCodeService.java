@@ -7,9 +7,11 @@ import com.mashibing.internalcommon.response.NumberCodeResponse;
 import com.mashibing.internalcommon.response.TokenResponse;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName VerificationCodeService
@@ -21,8 +23,13 @@ import javax.annotation.Resource;
 @Service
 public class VerificationCodeService {
 
+
+    private String verificationCodePrefix = "verification-code-prefix-";
     @Resource
     private ServiceVerificationcodeClient serviceVerificationcodeClient;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 生成验证码
@@ -39,7 +46,11 @@ public class VerificationCodeService {
         System.out.println("remote number code :" + numberCode);
 
         //存入redis
+
         System.out.println("存入redis");
+
+        String key = verificationCodePrefix + passengerPhone;
+        stringRedisTemplate.opsForValue().set(key, numberCode+"", 2, TimeUnit.MINUTES);
 
         //返回值
         JSONObject result = new JSONObject();

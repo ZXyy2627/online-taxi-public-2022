@@ -44,7 +44,7 @@ public class VerificationCodeController {
     @PostMapping("/verification-code-check")
     public ResponseResult<TokenResponse> checkCode(@RequestBody VerificationCodeDTO verificationCodeDTO) {
         String passengerPhone = verificationCodeDTO.getPassengerPhone();
-        String verificationCode = verificationCodeDTO.getCode();
+        String verificationCode = verificationCodeDTO.getVerificationCode();
 
         System.out.println("手机号是：" + passengerPhone + "验证码是:" + verificationCode);
 

@@ -14,5 +14,5 @@ public class VerificationCodeDTO {
 
     private String passengerPhone;
 
-    private String code;
+    private String verificationCode;
 }
