@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mashibing.internalcommon.dto.TokenResult;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -54,17 +55,22 @@ public class JwtUtils {
     }
 
 
-    public static String parseToken(String token) {
+    public static TokenResult parseToken(String token) {
         DecodedJWT verify = JWT.require(Algorithm.HMAC256(SIGN)).build().verify(token);
-        Claim claim = verify.getClaim(JWT_KEY_PHONE);
-        return claim.toString();
+        String phone = verify.getClaim(JWT_KEY_PHONE).toString();
+        String identity = verify.getClaim(JWT_KEY_IDENTITY).toString();
+
+        TokenResult tokenResult = new TokenResult();
+        tokenResult.setPhone(phone);
+        tokenResult.setIdentity(identity);
+        return tokenResult;
     }
 
     public static void main(String[] args) {
 
         String token = generatorToken("18507142627","passenger");
         System.out.println("生成的token是:" + token);
-        String passengerPhone = parseToken(token);
-        System.out.println("解析的电话号码是:" + passengerPhone);
+        //String passengerPhone = parseToken(token);
+        //System.out.println("解析的电话号码是:" + passengerPhone);
     }
 }
